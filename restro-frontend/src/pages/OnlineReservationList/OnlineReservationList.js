@@ -17,40 +17,19 @@ const OnlineReservationList = () => {
 
 
   useEffect(() => {
-    axios.get(`${client_url}/get-all-reservations`)
-      .then(res => {
-        setReservations(res.data);
-        setLoading(false);
-      })
-      .catch(err => {
+    const fetchReservations = async () => {
+      try {
+        const response = await axios.get(`${client_url}/get-all-reservations`);
+        setReservations(response.data.data || []);
+      } catch (err) {
+        console.error('Error fetching reservations:', err);
         setError('Failed to fetch reservations');
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+    fetchReservations();
   }, []);
-
-
-  // // Table row selection
-  // const rowSelection = {
-  //   selectedRowKeys,
-  //   onChange: (selectedKeys) => setSelectedRowKeys(selectedKeys),
-  //   getCheckboxProps: (record) => ({
-  //     disabled: record.status !== 'draft',
-  //     className: 'online-reservation-checkbox',
-  //   }),
-  // };
-
-  // // Accept/Decline button handlers (to be implemented)
-  // const handleAccept = () => {
-  //   // TODO: Implement backend call to accept selected reservations
-  //   // For now, just update status in UI for demo
-  //   setReservations((prev) => prev.map(r => selectedRowKeys.includes(r._id || r.displayId) ? { ...r, status: 'accepted' } : r));
-  //   setSelectedRowKeys([]);
-  // };
-  // const handleDecline = () => {
-  //   // TODO: Implement backend call to decline selected reservations
-  //   setReservations((prev) => prev.map(r => selectedRowKeys.includes(r._id || r.displayId) ? { ...r, status: 'declined' } : r));
-  //   setSelectedRowKeys([]);
-  // };
 
   const columns = [
     { title: 'Display ID', dataIndex: 'displayId', key: 'displayId', align: 'center' },
@@ -65,10 +44,6 @@ const OnlineReservationList = () => {
   return (
     <div className="online-reservation-list-container">
       <Title level={2} className="online-reservation-title">Online Reservations</Title>
-      {/* <div className="online-reservation-actions">
-        <Button type="primary" disabled={selectedRowKeys.length === 0} onClick={handleAccept}>Accept</Button>
-        <Button danger disabled={selectedRowKeys.length === 0} onClick={handleDecline}>Decline</Button>
-      </div> */}
       {loading && <div className="online-reservation-spin"><Spin size="large" /></div>}
       {error && <Alert message={error} type="error" showIcon style={{ marginBottom: 16 }} />}
       <Table
